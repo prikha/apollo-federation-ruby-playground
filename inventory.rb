@@ -27,6 +27,7 @@ class Product < BaseObject
   field :shipping_estimate, Int, null: true, requires: { fields: 'price weight' }
 
   def self.resolve_reference(reference, _context)
+    puts "[N+1] #{name}: resolving #{reference}"
     reference.merge(INVENTORY.find { |product| product[:upc] == reference[:upc] })
   end
 

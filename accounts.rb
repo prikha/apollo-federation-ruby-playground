@@ -34,8 +34,9 @@ class User < BaseObject
   field :name, String, null: true
   field :username, String, null: true
 
-  def self.resolve_reference(object, _context)
-    USERS.find { |user| user[:id] == object[:id] }
+  def self.resolve_reference(reference, _context)
+    puts "[N+1] #{name}: resolving #{reference}"
+    USERS.find { |user| user[:id] == reference[:id] }
   end
 end
 

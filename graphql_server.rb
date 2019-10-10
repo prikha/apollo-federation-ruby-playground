@@ -7,6 +7,7 @@ require 'pry-byebug'
 require 'apollo-federation'
 require 'optparse'
 require 'webrick'
+require 'prettyprint'
 
 class BaseField < GraphQL::Schema::Field
   include ApolloFederation::Field
@@ -59,7 +60,8 @@ class GraphQLServer
       vars: vars,
       schema: schema,
     }
-    puts graphql_debugging.inspect
+    
+    pp graphql_debugging
 
     result = schema.execute(
       query,
