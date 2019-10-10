@@ -45,11 +45,48 @@ REVIEWS = [
     product: { upc: '1' },
     body: 'Prefer something else.',
   },
-].freeze
-
-USERNAMES = [
-  { id: '1', username: '@ada' },
-  { id: '2', username: '@complete' },
+  {
+    id: '4',
+    authorID: '3',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '4',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '5',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '6',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '7',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '8',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
+  {
+    id: '4',
+    authorID: '9',
+    product: { upc: '1' },
+    body: 'Dummy',
+  },
 ].freeze
 
 class Review < BaseObject
@@ -57,7 +94,7 @@ class Review < BaseObject
 
   field :id, ID, null: false
   field :body, String, null: true
-  field :author, 'User', null: true, provides: { fields: 'username' }
+  field :author, 'User', null: true
   field :product, 'Product', null: true
 
   def author
@@ -70,16 +107,10 @@ class User < BaseObject
   extend_type
 
   field :id, ID, null: false, external: true
-  field :username, String, null: true, external: true
   field :reviews, [Review], null: true
 
   def reviews
     REVIEWS.select { |review| review[:authorID] == object[:id] }
-  end
-
-  def username
-    found = USERNAMES.find { |username| username[:id] == object[:id] }
-    found ? found[:username] : nil
   end
 end
 
@@ -95,10 +126,22 @@ class Product < BaseObject
   end
 end
 
+class Query < BaseObject
+  field :top_reviews, [Review], null: false do
+    argument :first, Int, required: false, default_value: 5
+  end
+
+  def top_reviews(first:)
+    REVIEWS.slice(0, first)
+  end
+end
+
 class ReviewSchema < GraphQL::Schema
   include ApolloFederation::Schema
 
   orphan_types User, Review, Product
+  
+  query(Query)
 end
 
 GraphQLServer.run(ReviewSchema, Port: 5002)
