@@ -1,0 +1,26 @@
+{
+  "name": "apollo-federation-ruby-playground",
+  "private": true,
+  "main": "gateway.js",
+  "license": "MIT",
+  "scripts": {
+    "start-gateway": "nodemon --delay 2 ./gateway.js",
+    "start-service-accounts": "nodemon --exec \"bundle exec ruby\" ./accounts.rb",
+    "start-service-reviews": "nodemon --exec \"bundle exec ruby\" ./reviews.rb",
+    "start-service-products": "nodemon --exec \"bundle exec ruby\" ./products.rb",
+    "start-service-inventory": "nodemon --exec \"bundle exec ruby\" ./inventory.rb",
+    "start-services": "concurrently \"npm:start-service-*\""
+  },
+  "dependencies": {
+    "@apollo/gateway": "0.6.6",
+    "apollo-server": "2.6.3",
+    "graphql": "14.3.1"
+  },
+  "devDependencies": {
+    "apollo-server-core": "2.6.3",
+    "apollo-server-testing": "2.6.3",
+    "concurrently": "4.1.0",
+    "graphql-tag": "2.10.1",
+    "nodemon": "1.19.1"
+  }
+}
