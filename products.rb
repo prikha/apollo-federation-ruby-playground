@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 require_relative './graphql_server'
+require 'graphql/batch'
+
+class ProductBatchLoader < GraphQL::Batch::Loader
+  def initialize(repo)
+    @repo = repo
+  end
+
+  def perform(ids)
+    @repo
+    .fetch(ids)
+    .each { |el| fulfill(el[:upc], el) }
+
+    ids.each { |id| fulfill(id, nil) unless fulfilled?(id) }
+  end
+end
 
 # extend type Query {
 #   topProducts(first: Int = 5): [Product]
@@ -34,6 +49,13 @@ PRODUCTS = [
   },
 ].freeze
 
+class ProductsRepo
+  def self.fetch(ids)
+    puts ">>>> Products repo called"
+    PRODUCTS.select { |el| ids.include?(el[:upc]) }
+  end
+end
+
 class Product < BaseObject
   key fields: 'upc'
 
@@ -43,8 +65,7 @@ class Product < BaseObject
   field :weight, Int, null: true
 
   def self.resolve_reference(reference, _context)
-    puts "[N+1] #{name}: resolving #{reference}"
-    PRODUCTS.find { |product| product[:upc] == reference[:upc] }
+    ProductBatchLoader.for(ProductsRepo).load(reference[:upc])
   end
 end
 
@@ -60,7 +81,7 @@ end
 
 class ProductSchema < GraphQL::Schema
   include ApolloFederation::Schema
-
+  use GraphQL::Batch
   query(Query)
 end
 
